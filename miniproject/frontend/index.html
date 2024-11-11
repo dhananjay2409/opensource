@@ -6,28 +6,13 @@
   <title>Parking Route Finder</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
+    body, html {
+      height: 100%;
       margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      background-color: #f0f0f0;
-    }
-
-    h2 {
-      color: #4CAF50;
-      font-size: 2em;
-      margin-bottom: 20px;
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to right, #4CAF50, #81C784);
     }
 
     #map {
@@ -36,7 +21,6 @@
       position: absolute;
       top: 0;
       left: 0;
-      z-index: 1;
     }
 
     .search-container {
@@ -44,113 +28,124 @@
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      width: 80%;
-      max-width: 500px;
+      width: 90%;
+      max-width: 600px;
       z-index: 1000;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: white;
-      padding: 10px 20px;
-      border-radius: 25px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 15px;
+      border-radius: 50px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     #locationInput {
-      width: 75%;
-      padding: 10px;
+      width: 80%;
+      padding: 12px;
       font-size: 16px;
-      border: 1px solid #ddd;
-      border-radius: 25px;
+      border: none;
+      border-radius: 30px;
       outline: none;
+      box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
     }
 
     #locationInput:focus {
-      border-color: #4CAF50;
+      border: 2px solid #4CAF50;
     }
 
     #searchBtn {
       background-color: #4CAF50;
       color: white;
-      font-size: 16px;
-      padding: 10px 15px;
+      font-size: 18px;
+      padding: 12px 15px;
       border: none;
       border-radius: 50%;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
     }
 
     #searchBtn:hover {
-      background-color: #45a049;
+      background-color: #388E3C;
+      transform: scale(1.1);
     }
 
-    #loadingMessage {
-      font-size: 16px;
-      color: #ff9800;
+    .map-buttons {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1000;
-      display: none;
+      top: 100px;
+      right: 20px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .location-list {
-      position: absolute;
-      top: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      max-width: 500px;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-      max-height: 300px;
-      overflow-y: scroll;
-      z-index: 1001;
-    }
-
-    .location-item {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
+    .satellite-btn, .traffic-btn {
+      background-color: #388E3C;
+      color: white;
+      font-size: 24px;
+      border: none;
+      padding: 12px;
+      border-radius: 50%;
       cursor: pointer;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
     }
 
-    .location-item:hover {
-      background-color: #f1f1f1;
+    .satellite-btn:hover, .traffic-btn:hover {
+      background-color: #2C6F28;
+      transform: scale(1.1);
     }
 
-    @media (max-width: 768px) {
-      .search-container {
-        width: 90%;
-      }
-
-      #locationInput {
-        width: 80%;
-      }
+    .traffic-btn {
+      background-color: #FF9800;
     }
+
+    .traffic-btn:hover {
+      background-color: #F57C00;
+    }
+
   </style>
 </head>
 <body>
 
-  <h2>Parking Route Finder</h2>
-
   <div class="search-container">
-    <input type="text" id="locationInput" placeholder="Enter parking location (e.g., Banjara Hills)" />
-    <button id="searchBtn">🔍</button>
+    <input type="text" id="locationInput" placeholder="Search for parking spots or places..." />
+    <button id="searchBtn"><i class="fas fa-search"></i></button>
   </div>
 
-  <div id="loadingMessage">Loading your location...</div>
+  <!-- Map buttons (Satellite View & Traffic Density) positioned outside the map -->
+  <div class="map-buttons">
+    <button class="satellite-btn" id="satelliteViewBtn"><i class="fas fa-globe"></i></button>
+    <button class="traffic-btn" id="trafficLayerBtn"><i class="fas fa-car-crash"></i></button>
+  </div>
 
   <div id="map"></div>
-  <div id="locationList" class="location-list" style="display:none;"></div>
 
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-
   <script>
-    let map, userLocation, parkingLocation, routeControl;
-    let userMarker, parkingMarker, locationMarkers = [];
+    let map, userLocation, routeControl;
+    let userMarker, parkingMarker;
+    let baseLayer, satelliteLayer, trafficLayer;
+    const MAPBOX_ACCESS_TOKEN = 'your-mapbox-access-token-here'; // Replace with your Mapbox access token
+
+    // Custom icon for user location
+    const userIcon = L.icon({
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/svgs/solid/user-location.svg',
+      iconSize: [30, 30],
+      iconAnchor: [15, 30],
+      popupAnchor: [0, -30]
+    });
+
+    // Custom icon for parking spot
+    const parkingIcon = L.icon({
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/svgs/solid/location-pin.svg',
+      iconSize: [30, 30],
+      iconAnchor: [15, 30],
+      popupAnchor: [0, -30]
+    });
 
     // Initialize the map
     function initMap() {
@@ -161,16 +156,33 @@
         touchZoom: true
       }).setView([17.4046, 78.4478], 14); // Default to Hyderabad, India
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // Add OpenStreetMap base layer
+      baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19
       }).addTo(map);
+
+      // Add Esri World Imagery (Satellite) base layer
+      satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; <a href="https://www.esri.com/en-us/arcgis/products/arcgis-online">Esri</a> contributors',
+        maxZoom: 19
+      });
+
+      // Add Mapbox Traffic Layer
+      trafficLayer = L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/traffic-day-v2/tiles/{z}/{x}/{y}?access_token=${MAPBOX_ACCESS_TOKEN}`, {
+        attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">© Mapbox</a>',
+        maxZoom: 19,
+        id: 'mapbox.traffic',
+        tileSize: 512,
+        zoomOffset: -1
+      });
+
+      // Try to get user's location on page load
+      getUserLocation();
     }
 
-    // Function to get user location and nearby parking spots
-    function getUserLocationAndNearby() {
-      document.getElementById("loadingMessage").style.display = "block"; // Show loading message
-
+    // Function to get user location
+    function getUserLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {
           userLocation = [position.coords.latitude, position.coords.longitude];
@@ -180,137 +192,95 @@
           }
 
           // Add user location marker
-          userMarker = L.marker(userLocation).addTo(map)
+          userMarker = L.marker(userLocation, { icon: userIcon }).addTo(map)
             .bindPopup("Your Location")
             .openPopup();
 
-          const parkingLocationInput = document.getElementById("locationInput").value;
+          // Zoom to user's location
+          map.flyTo(userLocation, 14, { animate: true, duration: 2 });
 
-          // Geocode parking location
-          geocodeLocation(parkingLocationInput);
         }, function (error) {
           alert("Error getting location: " + error.message);
-          document.getElementById("loadingMessage").style.display = "none";
         });
       } else {
         alert("Geolocation is not supported by this browser.");
-        document.getElementById("loadingMessage").style.display = "none";
       }
     }
 
-    // Geocode the parking location and find nearby spots
+    // Geocode the searched location
     function geocodeLocation(location) {
-      const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&addressdetails=1`;
+      const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&addressdetails=1&accept-language=en`;
 
       fetch(geocodeUrl)
         .then(response => response.json())
         .then(data => {
           if (data.length > 0) {
-            parkingLocation = [data[0].lat, data[0].lon];
-
-            // Smoothly pan and zoom to the searched location
-            map.flyTo(parkingLocation, 14, { animate: true, duration: 2 }); // Smooth zoom and pan
-
-            // Add marker to the searched location
-            if (parkingMarker) {
-              map.removeLayer(parkingMarker); // Remove previous marker
-            }
-            parkingMarker = L.marker(parkingLocation).addTo(map)
-              .bindPopup(data[0].display_name)
-              .openPopup();
-
-            // Show route to the searched location
-            getRoute(userLocation, parkingLocation);
+            const searchLocation = [data[0].lat, data[0].lon];
+            displayRoute(searchLocation, data[0].display_name);
           } else {
-            alert("Parking location not found. Please enter a valid location.");
-            document.getElementById("loadingMessage").style.display = "none";
+            alert("Location not found. Please enter a valid address.");
           }
-        })
-        .catch(error => {
-          alert("Error geocoding location: " + error);
-          document.getElementById("loadingMessage").style.display = "none";
         });
     }
 
-    // Find nearby parking locations and show them
-    function displayNearbyLocations(location) {
-      const nearbySearchUrl = `https://nominatim.openstreetmap.org/search?format=json&lat=${location[0]}&lon=${location[1]}&radius=1000&addressdetails=1&limit=5`;
-
-      fetch(nearbySearchUrl)
-        .then(response => response.json())
-        .then(data => {
-          const locationList = document.getElementById("locationList");
-          locationList.innerHTML = ""; // Clear previous results
-
-          if (data.length > 0) {
-            data.forEach(place => {
-              const lat = place.lat;
-              const lon = place.lon;
-              const distance = getDistance(location, [lat, lon]);
-
-              const listItem = document.createElement("div");
-              listItem.classList.add("location-item");
-              listItem.textContent = place.display_name;
-              listItem.addEventListener("click", function () {
-                // When a user clicks a location, it should show the route
-                getRoute(location, [lat, lon]);
-              });
-
-              locationList.appendChild(listItem);
-            });
-            locationList.style.display = "block";
-          } else {
-            locationList.innerHTML = "<div>No nearby parking spots found.</div>";
-            locationList.style.display = "block";
-          }
-
-          document.getElementById("loadingMessage").style.display = "none";
-        })
-        .catch(error => {
-          alert("Error fetching nearby locations: " + error);
-          document.getElementById("loadingMessage").style.display = "none";
-        });
-    }
-
-    // Calculate the distance between two coordinates (in meters)
-    function getDistance(coord1, coord2) {
-      const lat1 = coord1[0], lon1 = coord1[1];
-      const lat2 = coord2[0], lon2 = coord2[1];
-      const R = 6371; // Earth radius in km
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const distance = R * c * 1000; // distance in meters
-      return distance;
-    }
-
-    // Get the route from the user's location to the selected parking location
-    function getRoute(userLoc, parkingLoc) {
-      if (routeControl) {
-        map.removeControl(routeControl); // Remove previous route
+    // Show route to searched location
+    function displayRoute(destination, placeName) {
+      if (parkingMarker) {
+        map.removeLayer(parkingMarker); // Remove previous destination marker
       }
 
-      routeControl = L.Routing.control({
-        waypoints: [
-          L.latLng(userLoc[0], userLoc[1]),
-          L.latLng(parkingLoc[0], parkingLoc[1])
-        ],
-        routeWhileDragging: true
-      }).addTo(map);
+      // Add parking spot marker
+      parkingMarker = L.marker(destination, { icon: parkingIcon }).addTo(map)
+        .bindPopup("Parking Spot: " + placeName)
+        .openPopup();
 
-      // Zoom into the route
-      map.flyTo(userLoc, 14);
+      // Create a route to the searched location
+      if (routeControl) {
+        routeControl.setWaypoints([userLocation, destination]); // Update the route
+      } else {
+        routeControl = L.Routing.control({
+          waypoints: [userLocation, destination],
+          routeWhileDragging: true
+        }).addTo(map);
+      }
+
+      // Zoom and pan to the new route
+      map.flyTo(destination, 14, { animate: true, duration: 2 });
     }
 
-    // Listen for search button click
-    document.getElementById("searchBtn").addEventListener("click", function () {
-      getUserLocationAndNearby();
+    // Add event listener for search button
+    document.getElementById('searchBtn').addEventListener('click', function () {
+      const location = document.getElementById('locationInput').value;
+      if (location) {
+        geocodeLocation(location);
+      }
     });
 
-    // Initialize the map on page load
+    // Satellite View toggle button functionality
+    document.getElementById("satelliteViewBtn").addEventListener("click", function() {
+      if (map.hasLayer(satelliteLayer)) {
+        map.removeLayer(satelliteLayer);
+        map.addLayer(baseLayer);
+        this.innerHTML = '<i class="fas fa-globe"></i>'; // Change button back
+      } else {
+        map.addLayer(satelliteLayer);
+        map.removeLayer(baseLayer);
+        this.innerHTML = '<i class="fas fa-satellite"></i>'; // Change button to Satellite View
+      }
+    });
+
+    // Traffic Layer toggle button functionality
+    document.getElementById("trafficLayerBtn").addEventListener("click", function() {
+      if (map.hasLayer(trafficLayer)) {
+        map.removeLayer(trafficLayer);
+        this.innerHTML = '<i class="fas fa-car-crash"></i>'; // Change button back
+      } else {
+        map.addLayer(trafficLayer);
+        this.innerHTML = '<i class="fas fa-traffic-light"></i>'; // Change button to show traffic layer active
+      }
+    });
+
+    // Initialize the map
     initMap();
   </script>
 </body>
