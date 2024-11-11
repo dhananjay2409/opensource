@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "location": "Downtown",
+        "isOccupied": false,
+        "pricePerHour": 5
+    },
+    {
+        "id": 2,
+        "location": "City Center",
+        "isOccupied": true,
+        "pricePerHour": 7
+    },
+    {
+        "id": 3,
+        "location": "Mall Area",
+        "isOccupied": false,
+        "pricePerHour": 6
+    }
+]
