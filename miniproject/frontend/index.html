@@ -1,0 +1,63 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Parking Platform</h1>
+
+        <!-- Real-Time Parking Availability -->
+        <section id="availability-section">
+            <h2>Real-Time Parking Availability</h2>
+            <div id="parking-availability" class="parking-list">
+                <!-- Real-time parking data will be displayed here -->
+            </div>
+        </section>
+
+        <!-- Parking Reservation and Payment -->
+        <section id="reservation-section">
+            <h2>Parking Reservation and Payment</h2>
+            <form id="reservation-form">
+                <label for="location">Choose Location:</label>
+                <input type="text" id="location" name="location" required>
+                <label for="hours">Hours to Reserve:</label>
+                <input type="number" id="hours" name="hours" min="1" required>
+                <button type="button" onclick="reserveParking()">Reserve and Pay</button>
+            </form>
+        </section>
+
+        <!-- Intelligent Routing and Navigation -->
+        <section id="navigation-section">
+            <h2>Intelligent Routing and Navigation</h2>
+            <div id="navigation-info">
+                <button onclick="findNearestParking()">Find Nearest Parking</button>
+                <p id="navigation-result"></p>
+            </div>
+        </section>
+
+        <!-- Parking Management Dashboard (Admin Only) -->
+        <section id="dashboard-section">
+            <h2>Parking Management Dashboard</h2>
+            <div id="management-dashboard">
+                <!-- Management dashboard data will be displayed here -->
+            </div>
+        </section>
+
+        <!-- Multimodal Transportation Integration -->
+        <section id="transportation-section">
+            <h2>Multimodal Transportation Integration</h2>
+            <div id="transportation-options">
+                <button onclick="showNearbyTransportOptions()">Show Nearby Transport Options</button>
+                <ul id="transportation-list"></ul>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
